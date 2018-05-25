@@ -2,14 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class GameMathUtils {
+public class MathUtils {
 
 	public static float GetPitchShiftFromKeyShift (float keyShift) {
 		return Mathf.Pow (1.05946f, keyShift); // Science.
 	}
 
-	static public bool AreSameSign (float a, float b) { return a*b >= 0; }
-	static public bool AreSameSign (double a, double b) { return a*b >= 0; }
+	static public bool IsSameSign (float a, float b) { return a*b >= 0; }
+	static public bool IsSameSign (double a, double b) { return a*b >= 0; }
 	static public int Sign(float value, bool doAllow0=true) {
 		if (value < 0) return -1;
 		if (value > 0) return 1;

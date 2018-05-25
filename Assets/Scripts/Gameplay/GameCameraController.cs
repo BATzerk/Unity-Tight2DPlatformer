@@ -46,14 +46,13 @@ public class GameCameraController : MonoBehaviour {
 	// ----------------------------------------------------------------
 	private void Awake () {
 		// Add event listeners!
-		GameManagers.Instance.EventManager.PlayerStompPlayerAction += OnPlayerStompPlayer;
 		GameManagers.Instance.EventManager.ScreenSizeChangedEvent += OnScreenSizeChanged;
 	}
 	private void OnDestroy () {
 		// Remove event listeners!
-		GameManagers.Instance.EventManager.PlayerStompPlayerAction -= OnPlayerStompPlayer;
 		GameManagers.Instance.EventManager.ScreenSizeChangedEvent -= OnScreenSizeChanged;
 	}
+
 
 	// ----------------------------------------------------------------
 	//  Events
@@ -61,11 +60,6 @@ public class GameCameraController : MonoBehaviour {
 	private void OnScreenSizeChanged () {
 		// Go ahead and totally reset me completely when the screen size changes, just to be safe.
 		Reset ();
-	}
-
-	private void OnPlayerStompPlayer(Player p0, Player p1) {
-		// Screen shake!
-		screenShakeVolume = 4f;
 	}
 
 

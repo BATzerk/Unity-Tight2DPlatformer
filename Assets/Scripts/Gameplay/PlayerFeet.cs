@@ -34,13 +34,13 @@ public class PlayerFeet : MonoBehaviour {
 	private void OnTriggerEnter2D(Collider2D otherCol) {
 		// Ground??
 		if (LayerMask.LayerToName(otherCol.gameObject.layer) == LayerNames.Ground) {
-			myPlayer.IsGrounded = true;
+			myPlayer.OnFeetTouchGround ();
 		}
 	}
 	private void OnTriggerExit2D(Collider2D otherCol) {
 		// Ground??
 		if (LayerMask.LayerToName(otherCol.gameObject.layer) == LayerNames.Ground) {
-			myPlayer.IsGrounded = false;
+			myPlayer.OnFeetLeaveGround ();
 		}
 	}
 

@@ -29,14 +29,11 @@ public class PlayerHat : MonoBehaviour {
 	//  Events
 	// ----------------------------------------------------------------
 	private void OnTriggerEnter2D(Collider2D otherCol) {
-		// Player's feet??
-		PlayerFeet theseFeet = otherCol.GetComponent<PlayerFeet>();
-		if (theseFeet != null) {
-			OnPlayerStompMe(theseFeet);
-		}
-	}
-	private void OnPlayerStompMe(PlayerFeet feet) {
-		GameManagers.Instance.EventManager.OnPlayerStompPlayer(feet.MyPlayer, myPlayer);
+//		// Player's feet??
+//		PlayerFeet theseFeet = otherCol.GetComponent<PlayerFeet>();
+//		if (theseFeet != null) {
+//			OnPlayerStompMe(theseFeet);
+//		}
 	}
 
 

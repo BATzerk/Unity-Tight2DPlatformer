@@ -11,8 +11,7 @@ public class InputController : MonoBehaviour {
 	private bool isDoubleClick; // reset every frame.
 	private float timeWhenNullifyDoubleClick;
 	private Vector2 mousePosDown;
-	private Vector2 playerInput0;
-	private Vector2 playerInput1;
+	private Vector2 playerInput;
 
 	// Getters
 	static public InputController Instance {
@@ -42,13 +41,7 @@ public class InputController : MonoBehaviour {
 	static public bool IsMouseButtonUp () {
 		return GetMouseButtonUp() != -1;
 	}
-	public Vector2 PlayerInput(int playerIndex) {
-		switch(playerIndex) {
-			case 0: return playerInput0;
-			case 1: return playerInput1;
-			default: Debug.LogError("Oops; asking for playerInput for player " + playerIndex + ", but there aren't that many player inputs!"); return Vector2.zero;
-		}
-	}
+	public Vector2 PlayerInput { get { return playerInput; } }
 
 
 
@@ -78,9 +71,7 @@ public class InputController : MonoBehaviour {
 	}
 
 	private void RegisterButtonInputs () {
-		// HACK TEMP switched these. :P (Better way to do this would be to switch in the Input settings)
-		playerInput1 = new Vector2(Input.GetAxis("Player0_Horz"), Input.GetAxis("Player0_Vert"));
-		playerInput0 = new Vector2(Input.GetAxis("Player1_Horz"), Input.GetAxis("Player1_Vert"));
+		playerInput = new Vector2(Input.GetAxis("Player0_Horz"), Input.GetAxis("Player0_Vert"));
 	}
 
 	private void RegisterMouseInputs () {

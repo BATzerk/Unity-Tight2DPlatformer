@@ -1,1 +1,0 @@
-﻿public enum GameStates { PreGame, Playing, PostGame };
