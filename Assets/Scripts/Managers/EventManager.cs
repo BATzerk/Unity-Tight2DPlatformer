@@ -13,11 +13,12 @@ public class EventManager {
 	public delegate void PlayerAction (Player player);
 
 	public event NoParamAction ScreenSizeChangedEvent;
+	public event PlayerAction PlayerJumpEvent;
 
 	// Program Events
 	public void OnScreenSizeChanged () { if (ScreenSizeChangedEvent!=null) { ScreenSizeChangedEvent (); } }
 	// Game Events
-//	public void OnPlayerOpenSmashBall(Player player) { if (PlayerOpenSmashBallAction!=null) { PlayerOpenSmashBallAction(player); } }
+	public void OnPlayerJump(Player player) { if (PlayerJumpEvent!=null) { PlayerJumpEvent(player); } }
 
 }
 

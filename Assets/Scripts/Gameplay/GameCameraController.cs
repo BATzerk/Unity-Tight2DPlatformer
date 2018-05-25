@@ -5,19 +5,27 @@ using UnityEngine;
 public class GameCameraController : MonoBehaviour {
 	// Camera
 	[SerializeField] private Camera primaryCamera;
+	// Constants
+	private const float ZPos = -10; // lock z pos.
 	// Properties
 	private float orthoSizeNeutral;
 	private float zoomAmount = 1; // UNUSED currently. Stays at 1. It's here for if/when we need it.
-	private Rect viewRect;
 	private float screenShakeVolume;
 	private float screenShakeVolumeVel;
+	private Vector2 vel;
+	private Rect viewRect;
 	// References
 	[SerializeField] private FullScrim fullScrim;
+	private Transform tf_player;
 
 	// Getters / Setters
 	private float rotation {
 		get { return this.transform.localEulerAngles.z; }
 		set { this.transform.localEulerAngles = new Vector3 (0, 0, value); }
+	}
+	private Vector2 pos {
+		get { return viewRect.center; }
+		set { viewRect.center = value; }
 	}
 	private Rect GetViewRect (Vector2 _rectCenter, float _zoomAmount) {
 		Vector2 rectSize = GetViewRectSizeFromZoomAmount (_zoomAmount);
@@ -52,14 +60,34 @@ public class GameCameraController : MonoBehaviour {
 		// Remove event listeners!
 		GameManagers.Instance.EventManager.ScreenSizeChangedEvent -= OnScreenSizeChanged;
 	}
+	private void Start () {
+		Reset ();
+	}
+	public void Reset () {
+		// TEMP!
+		tf_player = GameObject.FindObjectOfType<Player>().transform;
+
+		UpdateOrthoSizeNeutral ();
+
+		// Reset values
+		vel = Vector2.zero;
+		screenShakeVolume = 0;
+		screenShakeVolumeVel = 0;
+
+		viewRect = new Rect ();
+		viewRect.size = GetViewRectSizeFromZoomAmount (1);
+		pos = tf_player.localPosition;
+
+		ApplyViewRect ();
+	}
 
 
 	// ----------------------------------------------------------------
 	//  Events
 	// ----------------------------------------------------------------
 	private void OnScreenSizeChanged () {
-		// Go ahead and totally reset me completely when the screen size changes, just to be safe.
-		Reset ();
+//		// Go ahead and totally reset me completely when the screen size changes, just to be safe.
+//		Reset ();
 	}
 
 
@@ -68,8 +96,18 @@ public class GameCameraController : MonoBehaviour {
 	//  Update
 	// ----------------------------------------------------------------
 	private void FixedUpdate() {
-		UpdateScreenShake ();
+		UpdateApplyVel();
+//		UpdateScreenShake ();
+
+		ApplyViewRect();
 	}
+
+	private void UpdateApplyVel() {
+		float velX = (tf_player.localPosition.x - pos.x) * 0.1f;
+		vel = new Vector2(velX, 0);
+		pos += vel;
+	}
+
 
 	private void UpdateScreenShake () {
 		if (screenShakeVolume==0 && screenShakeVolumeVel==0) {
@@ -95,23 +133,12 @@ public class GameCameraController : MonoBehaviour {
 	// ----------------------------------------------------------------
 	//  Doers
 	// ----------------------------------------------------------------
-	public void Reset () {
-		viewRect = new Rect ();
-		viewRect.size = GetViewRectSizeFromZoomAmount (1);
-
-		UpdateOrthoSizeNeutral ();
-//		ApplyViewRect ();HACK disabled 'cause... it's not doing what I expect and this is a game jam
-
-		screenShakeVolume = 0;
-		screenShakeVolumeVel = 0;
-	}
-
 	private void UpdateOrthoSizeNeutral () {
 		orthoSizeNeutral = ScreenHandler.OriginalScreenSize.y / 2f * GameVisualProperties.WORLD_SCALE;
 	}
 
 	private void ApplyViewRect () {
-		this.transform.localPosition = new Vector3 (viewRect.center.x, viewRect.center.y, -10); // lock z-pos to -10.
+		this.transform.localPosition = new Vector3 (viewRect.center.x, viewRect.center.y, ZPos);
 		ApplyZoomAmountToCameraOrthographicSize ();
 	}
 	private void ApplyZoomAmountToCameraOrthographicSize () {

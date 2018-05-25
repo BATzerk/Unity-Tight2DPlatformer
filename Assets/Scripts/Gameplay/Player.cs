@@ -8,12 +8,14 @@ public class Player : MonoBehaviour {
 	private const float MaxVelX = 18;
 	private const float MaxVelYUp = 500;
 	private const float MaxVelYDown = -100;
-	private const float JUMP_FORCE = 26f;// 1.8
+	private const float JumpForce = 26f;
 	private const float DELAYED_JUMP_WINDOW = 0.15f; // in SECONDS. The time window where we can press jump just BEFORE landing, and still jump when we land.
+	private const float JUMP_TIMEOUT_WINDOW = 0.2f; // in SECONDS. Don't allow jumping twice this quickly.
 	// Properties
 	private bool onGround;
 	private Color bodyColorNeutral;
 	private float timeWhenDelayedJump; // set when we're in the air and press Jump. If we touch ground before this time, we'll do a delayed jump!
+	private float timeWhenCanJump; // set to Time.time + JUMP_TIMEOUT_WINDOW when we jump.
 	// Components
 	[SerializeField] private PlayerHat myHat;
 	[SerializeField] private PlayerFeet myFeet;
@@ -70,21 +72,30 @@ public class Player : MonoBehaviour {
 	// ----------------------------------------------------------------
 	//  Update
 	// ----------------------------------------------------------------
-	private void FixedUpdate () {
-//		if (Time.timeScale == 0) { return; } // No time? No dice.
+	private void Update () {
+		if (Time.timeScale == 0) { return; } // No time? No dice.
 
-		ApplyFriction();
-		AcceptInput();
-		ApplyTerminalVel();
+		AcceptJumpInput();
 
-		// QQQ test
+		// TEMP test
 		s_body.color = onGround ? Color.green : Color.yellow;
 	}
+	private void AcceptJumpInput() {
+		if (Input.GetKeyDown(KeyCode.Space)) { // TEMP hardcoded
+			OnJumpPressed();
+		}
+	}
 
-	private const float RunAccel = 1000f;
-	private const float RunReduce = 400f;
+	private void FixedUpdate () {
+		if (Time.timeScale == 0) { return; } // No time? No dice.
 
-	private void AcceptInput() {
+		ApplyFriction();
+		AcceptMoveInput();
+		ApplyTerminalVel();
+	}
+
+
+	private void AcceptMoveInput() {
 		if (InputController.Instance==null) { return; } // for building at runtime.
 
 		// Horizontal!
@@ -98,13 +109,10 @@ public class Player : MonoBehaviour {
 		else {
 			vel = new Vector2(vel.x*0.8f, vel.y); // TEST
 		}
-
-		// Jump!
-		if (Input.GetKeyDown(KeyCode.Space)) { // TEMP hardcoded
-			OnJumpPressed();
-		}
 	}
 
+//	private const float RunAccel = 1000f;
+//	private const float RunReduce = 400f;
 //	float moveX = inputAxis.x;
 //	float velXTarget = MaxVelX*moveX;
 //	float mult = onGround ? 1 : 0.65f;
@@ -140,15 +148,18 @@ public class Player : MonoBehaviour {
 	//  Doers
 	// ----------------------------------------------------------------
 	private void Jump() {
-		vel += new Vector2(0, JUMP_FORCE);
+		vel += new Vector2(0, JumpForce);
 		timeWhenDelayedJump = -1; // reset this just in case.
+		timeWhenCanJump = Time.time + JUMP_TIMEOUT_WINDOW;
+		GameManagers.Instance.EventManager.OnPlayerJump(this);
 	}
 
 	// ----------------------------------------------------------------
 	//  Events
 	// ----------------------------------------------------------------
 	private void OnJumpPressed() {
-		if (onGround) {
+		// We're on the ground and NOT timed out of jumping! Go!
+		if (onGround && Time.time>=timeWhenCanJump) {
 			Jump();
 		}
 		else {
@@ -169,6 +180,10 @@ public class Player : MonoBehaviour {
 	}
 	public void OnFeetLeaveGround() {
 		onGround = false;
+	}
+	/** We also do a constant check, which is way more reliable. */
+	public void OnFeetTouchingGround() {
+		onGround = true;
 	}
 	private void OnTouchGround(GameObject groundGO) {
 //		// Are we doing a legit bounce?
