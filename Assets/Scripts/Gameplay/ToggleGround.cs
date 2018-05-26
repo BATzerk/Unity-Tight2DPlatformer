@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class ToggleGround : MonoBehaviour {
 	// Components
 	[SerializeField] private SpriteRenderer sr_fill;
@@ -18,7 +19,7 @@ public class ToggleGround : MonoBehaviour {
 	// ----------------------------------------------------------------
 	private void Start () {
 		bodyColorOn = startsOn ? new Color(3/255f, 170/255f, 204/255f) : new Color(217/255f, 74/255f, 136/255f);
-		bodyColorOff = new Color(bodyColorOn.r,bodyColorOn.g,bodyColorOn.b, bodyColorOn.a*0.2f);
+		bodyColorOff = new Color(bodyColorOn.r,bodyColorOn.g,bodyColorOn.b, bodyColorOn.a*0.14f);
 
 		// Size our sliced sprite properly!
 //		sr_stroke.transform.localScale = new Vector3(1/this.transform.localScale.x, 1/this.transform.localScale.y, 1);

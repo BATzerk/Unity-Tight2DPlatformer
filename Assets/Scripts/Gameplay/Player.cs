@@ -10,12 +10,13 @@ public class Player : MonoBehaviour {
 	private const float MaxVelYDown = -100;
 	private const float JumpForce = 26f;
 	private const float DELAYED_JUMP_WINDOW = 0.15f; // in SECONDS. The time window where we can press jump just BEFORE landing, and still jump when we land.
-	private const float JUMP_TIMEOUT_WINDOW = 0.2f; // in SECONDS. Don't allow jumping twice this quickly.
+	private const float JUMP_TIMEOUT_WINDOW = 0.0f; // Note: disabled. in SECONDS. Don't allow jumping twice this quickly.
 	// Properties
 	private bool onGround;
 	private Color bodyColorNeutral;
 	private float timeWhenDelayedJump; // set when we're in the air and press Jump. If we touch ground before this time, we'll do a delayed jump!
 	private float timeWhenCanJump; // set to Time.time + JUMP_TIMEOUT_WINDOW when we jump.
+	private int numJumpsSinceGround;
 	// Components
 	[SerializeField] private PlayerHat myHat;
 	[SerializeField] private PlayerFeet myFeet;
@@ -41,8 +42,8 @@ public class Player : MonoBehaviour {
 	// ----------------------------------------------------------------
 	private void Start () {
 		// Color me impressed!
-		bodyColorNeutral = new ColorHSB(0.5f, 0.5f, 1f).ToColor();
-		s_body.color = bodyColorNeutral;
+//		bodyColorNeutral = new ColorHSB(0.5f, 0.5f, 1f).ToColor();
+//		s_body.color = bodyColorNeutral;
 		// Size me, queen!
 		SetSize (new Vector2(2.5f, 2.5f)); // NOTE: I don't understand why we gotta cut it by 100x. :P
 
@@ -77,8 +78,8 @@ public class Player : MonoBehaviour {
 
 		AcceptJumpInput();
 
-		// TEMP test
-		s_body.color = onGround ? Color.green : Color.yellow;
+//		// TEMP test
+//		s_body.color = onGround ? Color.green : Color.yellow;
 	}
 	private void AcceptJumpInput() {
 		if (Input.GetKeyDown(KeyCode.Space)) { // TEMP hardcoded
@@ -148,9 +149,10 @@ public class Player : MonoBehaviour {
 	//  Doers
 	// ----------------------------------------------------------------
 	private void Jump() {
-		vel += new Vector2(0, JumpForce);
+		vel = new Vector2(vel.x, JumpForce);
 		timeWhenDelayedJump = -1; // reset this just in case.
 		timeWhenCanJump = Time.time + JUMP_TIMEOUT_WINDOW;
+		numJumpsSinceGround ++;
 		GameManagers.Instance.EventManager.OnPlayerJump(this);
 	}
 
@@ -159,7 +161,7 @@ public class Player : MonoBehaviour {
 	// ----------------------------------------------------------------
 	private void OnJumpPressed() {
 		// We're on the ground and NOT timed out of jumping! Go!
-		if (onGround && Time.time>=timeWhenCanJump) {
+		if (numJumpsSinceGround<2 && Time.time>=timeWhenCanJump) {//onGround 
 			Jump();
 		}
 		else {
@@ -174,6 +176,7 @@ public class Player : MonoBehaviour {
 	//	}
 	public void OnFeetTouchGround() {
 		onGround = true;
+		numJumpsSinceGround = 0;
 		if (Time.time <= timeWhenDelayedJump) {
 			Jump();
 		}
