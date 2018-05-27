@@ -31,24 +31,24 @@ public class PlayerFeet : MonoBehaviour {
 	// ----------------------------------------------------------------
 	//  Events
 	// ----------------------------------------------------------------
-	private void OnTriggerEnter2D(Collider2D otherCol) {
-		// Ground??
-		if (LayerMask.LayerToName(otherCol.gameObject.layer) == LayerNames.Ground) {
-			myPlayer.OnFeetTouchGround ();
-		}
-	}
-	private void OnTriggerExit2D(Collider2D otherCol) {
-		// Ground??
-		if (LayerMask.LayerToName(otherCol.gameObject.layer) == LayerNames.Ground) {
-			myPlayer.OnFeetLeaveGround ();
-		}
-	}
-	private void OnTriggerStay2D(Collider2D otherCol) {
-		// Ground??
-		if (LayerMask.LayerToName(otherCol.gameObject.layer) == LayerNames.Ground) {
-			myPlayer.OnFeetTouchingGround ();
-		}
-	}
+//	private void OnTriggerEnter2D(Collider2D otherCol) {
+//		// Ground??
+//		if (LayerMask.LayerToName(otherCol.gameObject.layer) == LayerNames.Ground) {
+//			myPlayer.OnFeetTouchGround ();
+//		}
+//	}
+//	private void OnTriggerExit2D(Collider2D otherCol) {
+//		// Ground??
+//		if (LayerMask.LayerToName(otherCol.gameObject.layer) == LayerNames.Ground) {
+//			myPlayer.OnFeetLeaveGround ();
+//		}
+//	}
+//	private void OnTriggerStay2D(Collider2D otherCol) {
+//		// Ground??
+//		if (LayerMask.LayerToName(otherCol.gameObject.layer) == LayerNames.Ground) {
+//			myPlayer.OnFeetTouchingGround ();
+//		}
+//	}
 
 
 }

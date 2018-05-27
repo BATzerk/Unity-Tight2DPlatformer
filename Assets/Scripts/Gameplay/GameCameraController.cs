@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class GameCameraController : MonoBehaviour {
 	// Camera
-	[SerializeField] private Camera primaryCamera;
+	[SerializeField] private Camera primaryCamera=null;
 	// Constants
+	private const float ConstOrthoScale = 0.1f;//HACKy non-pixel-perfect estimation.
 	private const float ZPos = -10; // lock z pos.
 	// Properties
 	private float orthoSizeNeutral;
@@ -15,10 +16,12 @@ public class GameCameraController : MonoBehaviour {
 	private Vector2 vel;
 	private Rect viewRect;
 	// References
-	[SerializeField] private FullScrim fullScrim;
+	[SerializeField] private FullScrim fullScrim=null;
 	private Transform tf_player;
 
 	// Getters / Setters
+	public Rect ViewRect { get { return viewRect; } }
+
 	private float rotation {
 		get { return this.transform.localEulerAngles.z; }
 		set { this.transform.localEulerAngles = new Vector3 (0, 0, value); }
@@ -32,19 +35,19 @@ public class GameCameraController : MonoBehaviour {
 		return new Rect (_rectCenter-rectSize*0.5f, rectSize); // Note: Convert from center to bottom-left pos.
 	}
 	private Vector2 GetViewRectSizeFromZoomAmount (float zoomAmount) {
-		return ScreenHandler.RelativeScreenSize / zoomAmount;
+		return ScreenHandler.RelativeScreenSize / zoomAmount * ConstOrthoScale;
 	}
 	private float GetZoomAmountForViewRect (Rect rect) {
-		return Mathf.Min (ScreenHandler.RelativeScreenSize.x/(float)rect.width, ScreenHandler.RelativeScreenSize.y/(float)rect.height);
+		return Mathf.Min (ScreenHandler.RelativeScreenSize.x/(float)rect.width, ScreenHandler.RelativeScreenSize.y/(float)rect.height) * ConstOrthoScale;
 	}
 	private float ZoomAmount { get { return orthoSizeNeutral / primaryCamera.orthographicSize; } }
 
 	// Debug
 	private void OnDrawGizmos() {
-		Gizmos.color = Color.yellow;
-		Gizmos.DrawWireCube (viewRect.center*GameVisualProperties.WORLD_SCALE, new Vector3(viewRect.size.x,viewRect.size.y, 10)*GameVisualProperties.WORLD_SCALE);
 		Gizmos.color = Color.blue;
-		Gizmos.DrawWireCube (viewRect.center*GameVisualProperties.WORLD_SCALE, new Vector3(ScreenHandler.RelativeScreenSize.x+11,ScreenHandler.RelativeScreenSize.y+11, 10)*GameVisualProperties.WORLD_SCALE);//+11 for bloat so we can still see it if there's overlap.
+		Gizmos.DrawWireCube (viewRect.center, new Vector3(viewRect.size.x,viewRect.size.y, 10));
+//		Gizmos.color = Color.yellow;
+//		Gizmos.DrawWireCube (viewRect.center*GameVisualProperties.WORLD_SCALE, new Vector3(ScreenHandler.RelativeScreenSize.x+11,ScreenHandler.RelativeScreenSize.y+11, 10)*GameVisualProperties.WORLD_SCALE);//+11 for bloat so we can still see it if there's overlap.
 	}
 
 
@@ -134,7 +137,7 @@ public class GameCameraController : MonoBehaviour {
 	//  Doers
 	// ----------------------------------------------------------------
 	private void UpdateOrthoSizeNeutral () {
-		orthoSizeNeutral = ScreenHandler.OriginalScreenSize.y / 2f * GameVisualProperties.WORLD_SCALE;
+		orthoSizeNeutral = ScreenHandler.OriginalScreenSize.y / 2f * ConstOrthoScale;// * GameVisualProperties.WORLD_SCALE;
 	}
 
 	private void ApplyViewRect () {

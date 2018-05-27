@@ -53,16 +53,25 @@ public class PlayerBody : MonoBehaviour {
 	//  Events
 	// ----------------------------------------------------------------
 	public void OnDash() {
-		Color color;
-		switch (myPlayer.NumDashesSinceGround) {
-			case 1: color = bodyColor_dashing1; break;
-//			case 2: color = bodyColor_dashing2; break;
-			default: color = bodyColor_outOfDashes; break;
-		}
-		sr_body.color = color;
+//		Color color;
+//		switch (myPlayer.NumDashesSinceGround) {
+//			case 1: color = bodyColor_dashing1; break;
+////			case 2: color = bodyColor_dashing2; break;
+//			default: color = bodyColor_outOfDashes; break;
+//		}
+//		sr_body.color = color;
 	}
 	public void OnDashEnd() {
 //		sr_body.color = bodyColor_neutral;
+		Color color;
+		switch (myPlayer.NumDashesSinceGround) {
+		case 0: color = bodyColor_neutral; break;
+		case Player.MaxDashes-2: color = bodyColor_dashing1; break;
+		case Player.MaxDashes-1: color = bodyColor_dashing1; break;
+		case Player.MaxDashes:   color = bodyColor_outOfDashes; break;
+		default: color = bodyColor_neutral; break;
+		}
+		sr_body.color = color;
 	}
 	public void OnRechargeDash() {
 		sr_body.color = bodyColor_neutral;

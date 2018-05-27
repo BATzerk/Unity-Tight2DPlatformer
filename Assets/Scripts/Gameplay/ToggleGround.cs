@@ -5,11 +5,10 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class ToggleGround : MonoBehaviour {
 	// Components
-	[SerializeField] private SpriteRenderer sr_fill;
-//	[SerializeField] private SpriteRenderer sr_stroke;
-	[SerializeField] private BoxCollider2D myCollider;
+	[SerializeField] private SpriteRenderer sr_fill=null;
+	[SerializeField] private BoxCollider2D myCollider=null;
 	// Properties
-	[SerializeField] private bool startsOn;
+	[SerializeField] private bool startsOn=false;
 	private bool isOn;
 	private Color bodyColorOn, bodyColorOff;
 
@@ -28,20 +27,32 @@ public class ToggleGround : MonoBehaviour {
 		SetIsOn(startsOn);
 
 		// Add event listeners!
-		GameManagers.Instance.EventManager.PlayerDashEvent += OnPlayerDash;
+//		GameManagers.Instance.EventManager.PlayerDashEvent += OnPlayerDash;
+		GameManagers.Instance.EventManager.PlayerDashEndEvent += OnPlayerDashEnd;
 	}
 	private void OnDestroy() {
 		// Remove event listeners!
-		GameManagers.Instance.EventManager.PlayerDashEvent -= OnPlayerDash;
+//		GameManagers.Instance.EventManager.PlayerDashEvent -= OnPlayerDash;
+		GameManagers.Instance.EventManager.PlayerDashEndEvent -= OnPlayerDashEnd;
 	}
 
 
 	// ----------------------------------------------------------------
 	//  Events
 	// ----------------------------------------------------------------
-	private void OnPlayerDash(Player player) {
+//	private void OnPlayerDash(Player player) {
+//		ToggleIsOn();
+//	}
+	private void OnPlayerDashEnd(Player player) {
 		ToggleIsOn();
 	}
+//	private void OnTriggerExit2D(Collider2D otherCol) {
+//		// Ground??
+//		if (LayerMask.LayerToName(otherCol.gameObject.layer) == LayerNames.Player) {
+//			myPlayer.OnFeetLeaveGround ();
+//		}
+//	}
+
 
 	// ----------------------------------------------------------------
 	//  Doers
@@ -51,9 +62,11 @@ public class ToggleGround : MonoBehaviour {
 	}
 	private void SetIsOn(bool _isOn) {
 		isOn = _isOn;
-		myCollider.enabled = isOn;
+		myCollider.isTrigger = !isOn;
 		sr_fill.color = isOn ? bodyColorOn : bodyColorOff;
 	}
+
+
 
 
 }

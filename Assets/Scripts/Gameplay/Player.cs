@@ -10,9 +10,9 @@ public class Player : MonoBehaviour {
 	private const float MaxVelX = 500;
 	private const float MaxVelYUp = 500;
 	private const float MaxVelYDown = -100;
-	private const float DashForce = 40f;
-	private const int MaxDashes = 2; // How many times we can dash until we have to touch the ground again.
-	private const float DashDistance = 8;
+	private const float DashForce = 100f; // how fast we dash.
+	public const int MaxDashes = 3; // How many times we can dash until we have to touch the ground again.
+	private const float DashDistance = GameProperties.UnitSize * 2; // we move 2 grid spaces.
 	private readonly float DashDuration = DashDistance / DashForce;// / Physics2D.positionIterations;//QQQ 0.15f; // how long each dash lasts.
 //	private readonly float DashCooldown = DashDuration; // in SECONDS. Don't allow dashing twice this quickly.
 	// Properties
@@ -133,10 +133,10 @@ public class Player : MonoBehaviour {
 
 
 	private void UpdateDash() {
-		// End the Dash?
-		if (isDashing && Time.time>=timeWhenDashEnd) {
-			EndDash();
-		}
+//		// End the Dash?DISABLED duration!
+//		if (isDashing && Time.time>=timeWhenDashEnd) {
+//			EndDash();
+//		}
 		// If I've dashed at all and I'm apparently on the ground, recharge my dash.
 		if (!isDashing && DidDash && onGround) {
 			RechargeDash();
@@ -175,11 +175,11 @@ public class Player : MonoBehaviour {
 		isDashing = false;
 		vel = Vector2.zero;//dashDir * DashForce; // Make sure we end with the dashing vel.
 		SnapPosToGrid();
-		body.OnDashEnd();
+		GameManagers.Instance.EventManager.OnPlayerDashEnd(this);
 		if (myWhiskers.IsTouchingGround()) { // If I'm touching the ground at all, recharge my dash!
 			RechargeDash();
 		}
-		GameManagers.Instance.EventManager.OnPlayerDashEnd(this);
+		body.OnDashEnd();
 	}
 	private void SnapPosToGrid() {
 		float pu = GameProperties.UnitSize*0.5f;
@@ -199,18 +199,55 @@ public class Player : MonoBehaviour {
 			Dash();
 		}
 	}
-	public void OnFeetTouchGround() {
+	private void OnTouchGround() {
 		onGround = true;
+		if (isDashing) {
+			EndDash();
+		}
 		RechargeDash();
 	}
-	public void OnFeetLeaveGround() {
+	private void OnLeaveGround() {
 		onGround = false;
 	}
 	/** We also do a constant check, which is way more reliable. */
-	public void OnFeetTouchingGround() {
+	private void OnTouchingGround() {
 		onGround = true;
 	}
 
+
+	private void OnCollisionEnter2D(Collision2D otherCol) {
+		// Ground??
+		if (LayerMask.LayerToName(otherCol.gameObject.layer) == LayerNames.Ground) {
+			OnTouchGround ();
+		}
+	}
+	private void OnCollisionExit2D(Collision2D otherCol) {
+		// Ground??
+		if (LayerMask.LayerToName(otherCol.gameObject.layer) == LayerNames.Ground) {
+			OnLeaveGround ();
+		}
+	}
+	private void OnCollisionStay2D(Collision2D otherCol) {
+		// Ground??
+		if (LayerMask.LayerToName(otherCol.gameObject.layer) == LayerNames.Ground) {
+			OnTouchingGround ();
+		}
+	}
+
+//	public void OnFeetTouchGround() {
+//		onGround = true;
+//		if (isDashing) {
+//			EndDash();
+//		}
+//		RechargeDash();
+//	}
+//	public void OnFeetLeaveGround() {
+//		onGround = false;
+//	}
+//	/** We also do a constant check, which is way more reliable. */
+//	public void OnFeetTouchingGround() {
+//		onGround = true;
+//	}
 
 
 }

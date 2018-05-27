@@ -32,13 +32,13 @@ public class PlayerWhiskers : MonoBehaviour {
 		return IsTouchingGroundAtSide(MathUtils.GetSide(dir));
 	}
 	public bool IsTouchingGroundAtSide(int side) {
-		return DistToGroundAtSide(side) < 0.1f;
+		return DistToGroundAtSide(side) < 0.3f;
 	}
 	public float DistToGroundAtSide(int side) {
 		Vector2 dir = whiskerDirs[side];
 		Vector2 pos = WhiskerPos(side);
 		hit = Physics2D.Raycast(pos, dir, Mathf.Infinity, myLayerMask);
-		if (hit.collider != null) {
+		if (hit.collider != null && !hit.collider.isTrigger) {
 			float dist = Vector2.Distance(hit.point, pos);
 			if (LayerMask.LayerToName(hit.collider.gameObject.layer) == LayerNames.Ground) {
 				return dist;
