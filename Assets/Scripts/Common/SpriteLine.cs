@@ -80,7 +80,7 @@ public class SpriteLine : MonoBehaviour {
 		}
 		this.transform.localPosition = LineUtils.GetCenterPos(startPos, endPos);
 		this.transform.localEulerAngles = new Vector3 (0, 0, angle);
-		GameUtils.SizeSpriteRenderer(sprite, thickness, length);
+		GameUtils.SizeSpriteRenderer(sprite, length, thickness);
 	}
 
 	public bool IsVisible {

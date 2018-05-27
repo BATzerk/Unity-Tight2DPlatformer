@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class PlayerFeet : MonoBehaviour {
 	// Components
-	[SerializeField] private BoxCollider2D myCollider;
+	[SerializeField] private BoxCollider2D myCollider=null;
 	// References
-	[SerializeField] private Player myPlayer;
+	[SerializeField] private Player myPlayer=null;
 
 	// Getters
 	public Player MyPlayer { get { return myPlayer; } }
@@ -41,6 +41,12 @@ public class PlayerFeet : MonoBehaviour {
 		// Ground??
 		if (LayerMask.LayerToName(otherCol.gameObject.layer) == LayerNames.Ground) {
 			myPlayer.OnFeetLeaveGround ();
+		}
+	}
+	private void OnTriggerStay2D(Collider2D otherCol) {
+		// Ground??
+		if (LayerMask.LayerToName(otherCol.gameObject.layer) == LayerNames.Ground) {
+			myPlayer.OnFeetTouchingGround ();
 		}
 	}
 
