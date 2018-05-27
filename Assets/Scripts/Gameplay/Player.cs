@@ -57,6 +57,7 @@ public class Player : MonoBehaviour {
 	public bool IsDashing { get { return isDashing; } }
 	public int NumDashesSinceGround { get { return numDashesSinceGround; } }
 	public Vector2 AimDir { get { return aimDir; } }
+	public Vector2 DashDir { get { return dashDir; } }
 	public Vector2 Pos { get { return pos; } }
 	public Vector2 Size { get { return size; } }
 
