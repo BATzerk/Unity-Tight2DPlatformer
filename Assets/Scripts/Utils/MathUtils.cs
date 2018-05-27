@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
+
 public class MathUtils {
 
 	public static float GetPitchShiftFromKeyShift (float keyShift) {
@@ -85,6 +86,40 @@ public class MathUtils {
 	}
 	/** 0 is UP, 90 degrees is RIGHT. */
 	public static Vector2 GetVectorFromAngleDeg (float degrees) { return GetVectorFromAngleRad (degrees*Mathf.Deg2Rad); }
+
+
+	public static Vector2Int GetDir (int side) {
+		switch (side) {
+		case Sides.L: return Vector2Int.L;
+		case Sides.R: return Vector2Int.R;
+		case Sides.B: return Vector2Int.B;
+		case Sides.T: return Vector2Int.T;
+		case Sides.TL: return Vector2Int.TL;
+		case Sides.TR: return Vector2Int.TR;
+		case Sides.BL: return Vector2Int.BL;
+		case Sides.BR: return Vector2Int.BR;
+		default: throw new UnityException ("Whoa, " + side + " is not a valid side. Try 0 through 7.");
+		}
+	}
+	public static int GetSide (Vector2Int dir) {
+		if (dir == Vector2Int.L) { return Sides.L; }
+		if (dir == Vector2Int.R) { return Sides.R; }
+		if (dir == Vector2Int.B) { return Sides.B; }
+		if (dir == Vector2Int.T) { return Sides.T; }
+		if (dir == Vector2Int.TL) { return Sides.TL; }
+		if (dir == Vector2Int.TR) { return Sides.TR; }
+		if (dir == Vector2Int.BL) { return Sides.BL; }
+		if (dir == Vector2Int.BR) { return Sides.BR; }
+		return Sides.Undefined; // Whoops.
+	}
+	public static int GetOppositeSide (Vector2Int dir) { return GetOppositeSide(GetSide(dir)); }
+	public static int GetOppositeSide (int side) {
+		return Sides.GetOpposite(side);
+	}
+	public static Vector2Int GetOppositeDir (int side) { return GetDir(GetOppositeSide(side)); }
+	/** Useful for flipping dirEntering to dirExiting, for example. Just returns the original value * -1. */
+	public static Vector2Int GetOppositeDir (Vector2Int dir) { return new Vector2Int(-dir.x, -dir.y); }
+
 
 	/*
 	public static Vector3 SnapVector2ToGrid (Vector3 _vector) { return SnapVector2ToGrid (_vector.x, _vector.y); }

@@ -3,15 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour {
-	// Constants
-//	private readonly Vector2 DirL = new Vector2(-1, 0);
-	private readonly Vector2 DirR = new Vector2( 1, 0);
-//	private readonly Vector2 DirB = new Vector2( 0,-1);
-//	private readonly Vector2 DirT = new Vector2( 0, 1);
-//	private readonly Vector2 DirBL = new Vector2(-1,-1).normalized;
-//	private readonly Vector2 DirBR = new Vector2( 1,-1).normalized;
-//	private readonly Vector2 DirTL = new Vector2(-1, 1).normalized;
-//	private readonly Vector2 DirTR = new Vector2( 1, 1).normalized;
 	// Controls
 	private const float AimDirDeadZone = 0.1f; // we ignore any input of magnitude less than this.
 	// Movement
@@ -21,19 +12,22 @@ public class Player : MonoBehaviour {
 	private const float MaxVelYDown = -100;
 	private const float DashForce = 40f;
 	private const int MaxDashes = 2; // How many times we can dash until we have to touch the ground again.
-	private const float DashDuration = 0.4f;//QQQ 0.15f; // how long each dash lasts.
-	private const float DashCooldown = 0.1f; // Note: disabled. in SECONDS. Don't allow dashing twice this quickly.
+	private const float DashDistance = 8;
+	private readonly float DashDuration = DashDistance / DashForce;// / Physics2D.positionIterations;//QQQ 0.15f; // how long each dash lasts.
+//	private readonly float DashCooldown = DashDuration; // in SECONDS. Don't allow dashing twice this quickly.
 	// Properties
 	private bool onGround;
 	private bool isDashing;
-	private float timeWhenCanDash; // set to Time.time + DashCooldown when we dash.
+//	private float timeWhenCanDash; // set to Time.time + DashCooldown when we dash.
 	private float timeWhenDashEnd; // set to Time.time + DashDuration when we dash.
 	private int numDashesSinceGround;
 	private Vector2 aimDir; // the direction we're facing. We dash in this direction.
 	private Vector2 dashDir; // the direction of the current dash. We keep going in this dir for the dash.
+	private Vector2 size;
 	// Components
-	[SerializeField] private PlayerHat myHat=null;
 	[SerializeField] private PlayerFeet myFeet=null;
+	[SerializeField] private PlayerHat myHat=null;
+	[SerializeField] private PlayerWhiskers myWhiskers=null;
 	[SerializeField] private BoxCollider2D bodyCollider=null;
 	[SerializeField] private Rigidbody2D myRigidbody=null;
 	[SerializeField] private PlayerBody body=null;
@@ -47,12 +41,24 @@ public class Player : MonoBehaviour {
 		get { return myRigidbody.velocity; }
 		set { myRigidbody.velocity = value; }
 	}
+//	private bool CanDash { get { return numDashesSinceGround<MaxDashes && Time.time>=timeWhenCanDash; } }
+	private bool CanDash() {
+		if (isDashing) { return false; } // Can't dash while dashing.
+		if (numDashesSinceGround>=MaxDashes) { return false; } // Max dashes before we have to recharge.
+		if (!CanDashInDir(aimDir)) { return false; } // Can't dash in this direction.
+		return true;
+	}
+	private bool CanDashInDir(Vector2 dir) {
+		return !myWhiskers.IsTouchingGroundAtSide(dir);
+	}
 	private bool DidDash { get { return numDashesSinceGround > 0; } }
 	private Vector2 inputAxis { get { return InputController.Instance==null ? Vector2.zero : InputController.Instance.PlayerInput; } }
 
-	public Vector2 AimDir { get { return aimDir; } }
 	public bool IsDashing { get { return isDashing; } }
 	public int NumDashesSinceGround { get { return numDashesSinceGround; } }
+	public Vector2 AimDir { get { return aimDir; } }
+	public Vector2 Pos { get { return pos; } }
+	public Vector2 Size { get { return size; } }
 
 
 
@@ -61,15 +67,17 @@ public class Player : MonoBehaviour {
 	// ----------------------------------------------------------------
 	private void Start () {
 		// Size me, queen!
-		SetSize (new Vector2(2.5f, 2.5f)); // NOTE: I don't understand why we gotta cut it by 100x. :P
+		SetSize (new Vector2(3.9f,3.9f));//2.5f, 2.5f));
 
 		ResetVel();
+		SnapPosToGrid();
 	}
 	private void SetSize(Vector2 _size) {
-		body.SetSize(_size);
-		bodyCollider.size = _size;
-		myFeet.OnSetBodySize(_size);
-		myHat.OnSetBodySize(_size);
+		this.size = _size;
+		body.SetSize(size);
+		bodyCollider.size = size;
+		myFeet.OnSetBodySize(size);
+		myHat.OnSetBodySize(size);
 	}
 
 
@@ -82,7 +90,7 @@ public class Player : MonoBehaviour {
 	}
 	private void ResetVel() {
 		vel = Vector2.zero;
-		aimDir = DirR;
+		aimDir = Vector2Int.R.ToVector2();
 	}
 
 
@@ -95,9 +103,6 @@ public class Player : MonoBehaviour {
 
 		UpdateAimDir();
 		AcceptDashInput();
-
-//		// TEMP test
-//		s_body.color = onGround ? Color.green : Color.yellow;
 	}
 	private void UpdateAimDir() {
 		if (inputAxis.magnitude > AimDirDeadZone) {
@@ -105,9 +110,14 @@ public class Player : MonoBehaviour {
 		}
 	}
 	private void AcceptDashInput() {
-		if (Input.GetKeyDown(KeyCode.Space)) { // TEMP hardcoded
-			OnDashPressed();
-		}
+//		if (Input.GetKeyDown(KeyCode.Space)) { // TEMP hardcoded
+//			OnDashPressed();
+//		}
+		// TEMP hardcoded
+		if (Input.GetKeyDown(KeyCode.LeftArrow))  { aimDir = Vector2Int.L.ToVector2(); OnDashPressed(); }
+		if (Input.GetKeyDown(KeyCode.RightArrow)) { aimDir = Vector2Int.R.ToVector2(); OnDashPressed(); }
+		if (Input.GetKeyDown(KeyCode.DownArrow))  { aimDir = Vector2Int.B.ToVector2(); OnDashPressed(); }
+		if (Input.GetKeyDown(KeyCode.UpArrow))    { aimDir = Vector2Int.T.ToVector2(); OnDashPressed(); }
 	}
 
 	private void FixedUpdate () {
@@ -155,7 +165,7 @@ public class Player : MonoBehaviour {
 		isDashing = true;
 		dashDir = aimDir.normalized;
 		vel = dashDir * DashForce;
-		timeWhenCanDash = Time.time + DashCooldown;
+//		timeWhenCanDash = Time.time + DashCooldown;
 		timeWhenDashEnd = Time.time + DashDuration;
 		numDashesSinceGround ++;
 		body.OnDash();
@@ -163,10 +173,17 @@ public class Player : MonoBehaviour {
 	}
 	private void EndDash() {
 		isDashing = false;
-		vel = dashDir * DashForce; // Make sure we end with the dashing vel.
-		vel = Vector2.zero;//QQQ
+		vel = Vector2.zero;//dashDir * DashForce; // Make sure we end with the dashing vel.
+		SnapPosToGrid();
 		body.OnDashEnd();
+		if (myWhiskers.IsTouchingGround()) { // If I'm touching the ground at all, recharge my dash!
+			RechargeDash();
+		}
 		GameManagers.Instance.EventManager.OnPlayerDashEnd(this);
+	}
+	private void SnapPosToGrid() {
+		float pu = GameProperties.UnitSize*0.5f;
+		pos = new Vector3(Mathf.Round(pos.x/pu)*pu, Mathf.Round(pos.y/pu)*pu, pos.z);
 	}
 	private void RechargeDash() {
 		numDashesSinceGround = 0;
@@ -178,7 +195,7 @@ public class Player : MonoBehaviour {
 	// ----------------------------------------------------------------
 	private void OnDashPressed() {
 		// We're on the ground and NOT timed out of dashing! Go!
-		if (numDashesSinceGround<MaxDashes && Time.time>=timeWhenCanDash) {
+		if (CanDash()) {
 			Dash();
 		}
 	}
@@ -193,6 +210,7 @@ public class Player : MonoBehaviour {
 	public void OnFeetTouchingGround() {
 		onGround = true;
 	}
+
 
 
 }

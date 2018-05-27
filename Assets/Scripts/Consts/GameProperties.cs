@@ -7,6 +7,8 @@ public class GameProperties : MonoBehaviour {
 //	private static readonly string[] player1Names = { "Señor Verde", "The Green Slammer", "Verdant Spasm", "Christian Kale", "Lettuce Slave", "Kate Moss", "1 Rupee" };
 
 
+	// Constants
+	public const float UnitSize = 4f; // in Unity units
 
 
 
