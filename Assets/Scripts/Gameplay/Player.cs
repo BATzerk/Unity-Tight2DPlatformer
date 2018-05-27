@@ -4,23 +4,24 @@ using UnityEngine;
 
 public class Player : MonoBehaviour {
 	// Constants
-	private readonly Vector2 DirL = new Vector2(-1, 0);
+//	private readonly Vector2 DirL = new Vector2(-1, 0);
 	private readonly Vector2 DirR = new Vector2( 1, 0);
-	private readonly Vector2 DirB = new Vector2( 0,-1);
-	private readonly Vector2 DirT = new Vector2( 0, 1);
-	private readonly Vector2 DirBL = new Vector2(-1,-1).normalized;
-	private readonly Vector2 DirBR = new Vector2( 1,-1).normalized;
-	private readonly Vector2 DirTL = new Vector2(-1, 1).normalized;
-	private readonly Vector2 DirTR = new Vector2( 1, 1).normalized;
+//	private readonly Vector2 DirB = new Vector2( 0,-1);
+//	private readonly Vector2 DirT = new Vector2( 0, 1);
+//	private readonly Vector2 DirBL = new Vector2(-1,-1).normalized;
+//	private readonly Vector2 DirBR = new Vector2( 1,-1).normalized;
+//	private readonly Vector2 DirTL = new Vector2(-1, 1).normalized;
+//	private readonly Vector2 DirTR = new Vector2( 1, 1).normalized;
 	// Controls
 	private const float AimDirDeadZone = 0.1f; // we ignore any input of magnitude less than this.
 	// Movement
-	private const float MaxVelX = 18;
+	private const float MyGravity = 0f;//-2f; // we manually apply gravity in this class.
+	private const float MaxVelX = 500;
 	private const float MaxVelYUp = 500;
 	private const float MaxVelYDown = -100;
-	private const float DashForce = 26f;
+	private const float DashForce = 40f;
 	private const int MaxDashes = 2; // How many times we can dash until we have to touch the ground again.
-	private const float DashDuration = 0.2f; // how long each dash lasts.
+	private const float DashDuration = 0.4f;//QQQ 0.15f; // how long each dash lasts.
 	private const float DashCooldown = 0.1f; // Note: disabled. in SECONDS. Don't allow dashing twice this quickly.
 	// Properties
 	private bool onGround;
@@ -46,7 +47,8 @@ public class Player : MonoBehaviour {
 		get { return myRigidbody.velocity; }
 		set { myRigidbody.velocity = value; }
 	}
-	private Vector2 inputAxis { get { return InputController.Instance.PlayerInput; } }
+	private bool DidDash { get { return numDashesSinceGround > 0; } }
+	private Vector2 inputAxis { get { return InputController.Instance==null ? Vector2.zero : InputController.Instance.PlayerInput; } }
 
 	public Vector2 AimDir { get { return aimDir; } }
 	public bool IsDashing { get { return isDashing; } }
@@ -121,12 +123,17 @@ public class Player : MonoBehaviour {
 
 
 	private void UpdateDash() {
+		// End the Dash?
 		if (isDashing && Time.time>=timeWhenDashEnd) {
 			EndDash();
 		}
+		// If I've dashed at all and I'm apparently on the ground, recharge my dash.
+		if (!isDashing && DidDash && onGround) {
+			RechargeDash();
+		}
 	}
 	private void ApplyGravity() {
-		vel += new Vector2(0,-2f);//TEMP HACK Physics2D.gravity;
+		vel += new Vector2(0, MyGravity);
 	}
 	private void ApplyFriction() {
 		if (onGround) {
@@ -157,8 +164,13 @@ public class Player : MonoBehaviour {
 	private void EndDash() {
 		isDashing = false;
 		vel = dashDir * DashForce; // Make sure we end with the dashing vel.
+		vel = Vector2.zero;//QQQ
 		body.OnDashEnd();
 		GameManagers.Instance.EventManager.OnPlayerDashEnd(this);
+	}
+	private void RechargeDash() {
+		numDashesSinceGround = 0;
+		body.OnRechargeDash();
 	}
 
 	// ----------------------------------------------------------------
@@ -172,8 +184,7 @@ public class Player : MonoBehaviour {
 	}
 	public void OnFeetTouchGround() {
 		onGround = true;
-		numDashesSinceGround = 0;
-		body.OnFeetTouchGround();
+		RechargeDash();
 	}
 	public void OnFeetLeaveGround() {
 		onGround = false;

@@ -76,7 +76,7 @@ public class GameCameraController : MonoBehaviour {
 
 		viewRect = new Rect ();
 		viewRect.size = GetViewRectSizeFromZoomAmount (1);
-		pos = tf_player.localPosition;
+		pos = new Vector2(tf_player.localPosition.x, this.transform.localPosition.y); // Start us with the Player in view.
 
 		ApplyViewRect ();
 	}

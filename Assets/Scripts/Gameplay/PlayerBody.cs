@@ -64,7 +64,7 @@ public class PlayerBody : MonoBehaviour {
 	public void OnDashEnd() {
 //		sr_body.color = bodyColor_neutral;
 	}
-	public void OnFeetTouchGround() {
+	public void OnRechargeDash() {
 		sr_body.color = bodyColor_neutral;
 	}
 
