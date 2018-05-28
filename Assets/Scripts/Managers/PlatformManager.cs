@@ -14,8 +14,8 @@ public class PlatformManager {
 		return Application.platform == RuntimePlatform.LinuxPlayer;
 	}
 	public static bool IsMac () {
-		return Application.platform == RuntimePlatform.OSXDashboardPlayer
-			|| Application.platform == RuntimePlatform.OSXEditor
+		return //Application.platform == RuntimePlatform.OSXDashboardPlayer
+			   Application.platform == RuntimePlatform.OSXEditor
 			|| Application.platform == RuntimePlatform.OSXPlayer;
 	}
 	public static bool IsWindows () {
